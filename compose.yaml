@@ -1,0 +1,15 @@
+services:
+  roi-guard:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      APP_SECRET: ${APP_SECRET:?Set APP_SECRET}
+      DASHBOARD_PASSWORD: ${DASHBOARD_PASSWORD:?Set DASHBOARD_PASSWORD}
+      APP_ORIGIN: ${APP_ORIGIN:?Set APP_ORIGIN}
+      DATA_DIR: /app/data
+    volumes:
+      - roi-data:/app/data
+volumes:
+  roi-data:

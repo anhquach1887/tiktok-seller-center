@@ -1,0 +1,10 @@
+node_modules
+.next
+.git
+.env*
+data
+npm-cache
+Microsoft
+campaign-response.json
+*.log
+.test-data-*

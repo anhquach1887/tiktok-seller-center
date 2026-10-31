@@ -1,0 +1,38 @@
+name: Check campaign ROI
+on:
+  schedule:
+    - cron: '3-58/5 * * * *'
+  workflow_dispatch:
+permissions: {}
+concurrency:
+  group: roi-scheduler-production
+  cancel-in-progress: false
+jobs:
+  tick:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    env:
+      APP_URL: ${{ secrets.APP_URL }}
+      CRON_SECRET: ${{ secrets.CRON_SECRET }}
+    steps:
+      - name: Trigger server-side scheduler
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          const base = process.env.APP_URL;
+          const secret = process.env.CRON_SECRET;
+          if (!base || !secret) {
+            console.log('Scheduler not configured yet. Add APP_URL and CRON_SECRET repository secrets.');
+            process.exit(0);
+          }
+          const url = new URL('/api/cron', base);
+          if (url.protocol !== 'https:' || url.username || url.password) throw new Error('APP_URL must be your HTTPS production URL.');
+          const response = await fetch(url, {
+            headers: { Authorization: `Bearer ${secret}` },
+            redirect: 'error',
+            signal: AbortSignal.timeout(280000)
+          });
+          const result = await response.json().catch(() => null);
+          if (!response.ok || result?.ok !== true) throw new Error(`Scheduler failed (HTTP ${response.status}). See Vercel Function Logs.`);
+          console.log(JSON.stringify({ checked: result.checked, failed: result.failed, deferred: result.deferred, at: result.at }));
+          NODE

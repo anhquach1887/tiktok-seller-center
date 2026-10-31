@@ -1,0 +1,10 @@
+node_modules/
+.next/
+data/
+.env*
+!.env.example
+npm-cache/
+campaign-response.json
+Microsoft/
+*.log
+.test-data-*
