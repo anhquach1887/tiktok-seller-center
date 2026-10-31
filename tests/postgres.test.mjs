@@ -11,7 +11,7 @@ const fixture=new DatabaseSync(':memory:');
 fixture.exec('PRAGMA foreign_keys=ON;'+readFileSync(new URL('../schema.sql',import.meta.url),'utf8').replace('BIGSERIAL PRIMARY KEY','INTEGER PRIMARY KEY AUTOINCREMENT'));
 const originalFetch=globalThis.fetch;let sqlCalls=0;
 globalThis.fetch=async(endpoint,options)=>{
- assert.equal(String(endpoint),'https://ep-test.ap-southeast-1.aws.neon.tech/sql');sqlCalls++;
+ assert.equal(String(endpoint),'https://api.ap-southeast-1.aws.neon.tech/sql');sqlCalls++;
  const body=JSON.parse(options.body),params=[];
  const sql=body.query.replace(/\$(\d+)/g,(_,index)=>{params.push(body.params[Number(index)-1]);return'?'});
  const statement=fixture.prepare(sql);
